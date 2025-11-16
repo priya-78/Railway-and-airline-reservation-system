@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="my-4">Booking History</h1>
+    
+    {% if bookings %}
+        <div class="card bg-dark mb-4">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Your Bookings</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-dark table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Type</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Date</th>
+                                <th>Class</th>
+                                <th>Passengers</th>
+                                <th>Total Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                                <tr>
+                                    <td>#{{ booking.id }}</td>
+                                    <td>
+                                        {% if booking.booking_type == 'train' %}
+                                            <span class="badge bg-success">Train</span>
+                                        {% else %}
+                                            <span class="badge bg-info">Flight</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if booking.booking_type == 'train' %}
+                                            {{ booking.train_schedule.departure_station.name }}
+                                        {% else %}
+                                            {{ booking.flight_schedule.departure_airport.name }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if booking.booking_type == 'train' %}
+                                            {{ booking.train_schedule.arrival_station.name }}
+                                        {% else %}
+                                            {{ booking.flight_schedule.arrival_airport.name }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if booking.booking_type == 'train' %}
+                                            {{ booking.train_schedule.departure_time.strftime('%Y-%m-%d %H:%M') }}
+                                        {% else %}
+                                            {{ booking.flight_schedule.departure_time.strftime('%Y-%m-%d %H:%M') }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if booking.travel_class == 'economy' %}
+                                            <span class="badge bg-secondary">Economy</span>
+                                        {% elif booking.travel_class == 'business' %}
+                                            <span class="badge bg-primary">Business</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">First Class</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ booking.passengers|length }}</td>
+                                    <td>${{ booking.total_amount }}</td>
+                                    <td>
+                                        {% if booking.status == 'confirmed' %}
+                                            <span class="badge bg-success">Confirmed</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Cancelled</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('booking_confirmation', booking_id=booking.id) }}" class="btn btn-info btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if booking.status == 'confirmed' %}
+                                            <a href="{{ url_for('cancel_booking', booking_id=booking.id) }}" class="btn btn-danger btn-sm" 
+                                               onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                                <i class="fas fa-times"></i>
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <h4 class="alert-heading">No bookings found!</h4>
+            <p>You haven't made any bookings yet. Start your journey by searching for trains or flights.</p>
+            <hr>
+            <a href="{{ url_for('search') }}" class="btn btn-primary">
+                <i class="fas fa-search me-2"></i>Search Tickets
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

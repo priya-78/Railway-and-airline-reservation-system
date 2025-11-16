@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card bg-dark">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">User Profile</h3>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-circle fa-5x text-primary"></i>
+                    </div>
+                    <h4>{{ current_user.first_name }} {{ current_user.last_name }}</h4>
+                    <p class="text-muted mb-1">@{{ current_user.username }}</p>
+                    <p class="text-muted mb-3">
+                        <i class="fas fa-envelope me-2"></i>{{ current_user.email }}
+                    </p>
+                    <p class="text-muted">
+                        <i class="fas fa-phone me-2"></i>{{ current_user.phone or 'No phone added' }}
+                    </p>
+                    <p class="text-muted">
+                        <i class="fas fa-calendar me-2"></i>Member since {{ current_user.created_at.strftime('%B %Y') }}
+                    </p>
+                    {% if current_user.is_admin %}
+                        <div class="mb-3">
+                            <span class="badge bg-danger">Administrator</span>
+                        </div>
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-danger">
+                            <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card bg-dark mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Account Summary</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">Total Bookings</h5>
+                                    <p class="card-text display-4">{{ bookings|length }}</p>
+                                    <a href="{{ url_for('booking_history') }}" class="text-white">View details <i class="fas fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">Active Bookings</h5>
+                                    <p class="card-text display-4">{{ active_bookings|length }}</p>
+                                    <a href="{{ url_for('booking_history') }}" class="text-white">View details <i class="fas fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card bg-dark">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Recent Activity</h3>
+                </div>
+                <div class="card-body">
+                    {% if recent_bookings %}
+                        <div class="list-group list-group-flush">
+                            {% for booking in recent_bookings %}
+                                <div class="list-group-item bg-dark">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">
+                                            {% if booking.booking_type == 'train' %}
+                                                <i class="fas fa-train text-success me-2"></i>
+                                                {{ booking.train_schedule.departure_station.city }} to {{ booking.train_schedule.arrival_station.city }}
+                                            {% else %}
+                                                <i class="fas fa-plane text-info me-2"></i>
+                                                {{ booking.flight_schedule.departure_airport.city }} to {{ booking.flight_schedule.arrival_airport.city }}
+                                            {% endif %}
+                                        </h5>
+                                        <small>{{ booking.booking_date.strftime('%Y-%m-%d') }}</small>
+                                    </div>
+                                    <p class="mb-1">
+                                        {{ booking.passengers|length }} passenger(s), {{ booking.travel_class }} class
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small>${{ booking.total_amount }}</small>
+                                        <a href="{{ url_for('booking_confirmation', booking_id=booking.id) }}" class="btn btn-sm btn-outline-info">View</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <p class="mb-0">You don't have any recent booking activity.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
