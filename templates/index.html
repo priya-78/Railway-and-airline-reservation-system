@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="hero-section p-5 text-center rounded">
+        <h1 class="display-4 fw-bold">Travel Made Easy</h1>
+        <p class="lead mb-4">Book railway and airline tickets in one place. Fast, secure, and convenient.</p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a href="{{ url_for('search') }}" class="btn btn-primary btn-lg px-4 gap-3">Search Tickets</a>
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg px-4">Sign Up</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Quick Search Form -->
+    <div class="card shadow-sm mt-5 bg-dark">
+        <div class="card-header">
+            <h3 class="card-title mb-0">Quick Search</h3>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('search') }}" method="post">
+                {{ form.hidden_tag() }}
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-12">
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="booking_type" id="train-option" value="train" {{ 'checked' if form.booking_type.data == 'train' or not form.booking_type.data else '' }} autocomplete="off">
+                            <label class="btn btn-outline-primary" for="train-option">
+                                <i class="fas fa-train me-2"></i>Train
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="booking_type" id="flight-option" value="flight" {{ 'checked' if form.booking_type.data == 'flight' else '' }} autocomplete="off">
+                            <label class="btn btn-outline-primary" for="flight-option">
+                                <i class="fas fa-plane me-2"></i>Flight
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-5">
+                        <div class="form-floating">
+                            {{ form.source(class="form-control", id="source", placeholder="From") }}
+                            <label for="source">From</label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-2 d-flex align-items-center justify-content-center">
+                        <button type="button" id="swap-locations" class="btn btn-outline-secondary rounded-circle">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="col-md-5">
+                        <div class="form-floating">
+                            {{ form.destination(class="form-control", id="destination", placeholder="To") }}
+                            <label for="destination">To</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            {{ form.departure_date(class="form-control", id="departure_date", type="date") }}
+                            <label for="departure_date">Departure Date</label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            {{ form.travel_class(class="form-control", id="travel_class") }}
+                            <label for="travel_class">Class</label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            {{ form.passengers(class="form-control", id="passengers", min="1", max="10") }}
+                            <label for="passengers">Passengers</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row mt-5 pt-3">
+        <h2 class="text-center mb-4">Why Choose GoVoyage?</h2>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 bg-dark">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-ticket-alt fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="card-title">Unified Booking</h5>
+                    <p class="card-text">Book both train and flight tickets in one convenient platform.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 bg-dark">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-hand-holding-usd fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="card-title">Best Prices</h5>
+                    <p class="card-text">Get competitive fares and exclusive deals on all bookings.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 bg-dark">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-clock fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="card-title">Quick & Easy</h5>
+                    <p class="card-text">Book your tickets in minutes with our streamlined process.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Travel Categories -->
+    <div class="row mt-5">
+        <div class="col-md-6 mb-4">
+            <div class="card travel-type-train h-100 bg-dark">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <i class="fas fa-train me-2 text-success"></i> 
+                        Railway Travel
+                    </h4>
+                    <p class="card-text">Experience the charm of train travel with comfortable seats, beautiful landscapes, and convenient schedules.</p>
+                    <ul class="list-group list-group-flush bg-dark mb-3">
+                        <li class="list-group-item bg-dark">Multiple classes available</li>
+                        <li class="list-group-item bg-dark">Flexible seating options</li>
+                        <li class="list-group-item bg-dark">Food service available</li>
+                    </ul>
+                    <a href="{{ url_for('search', booking_type='train') }}" class="btn btn-success">Book Train Tickets</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card travel-type-flight h-100 bg-dark">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <i class="fas fa-plane me-2 text-info"></i> 
+                        Airline Travel
+                    </h4>
+                    <p class="card-text">Fly to your destination quickly with our airline partners offering convenience and comfort at competitive prices.</p>
+                    <ul class="list-group list-group-flush bg-dark mb-3">
+                        <li class="list-group-item bg-dark">Economy, business, and first class</li>
+                        <li class="list-group-item bg-dark">Special meal preferences</li>
+                        <li class="list-group-item bg-dark">Fast check-in and boarding</li>
+                    </ul>
+                    <a href="{{ url_for('search', booking_type='flight') }}" class="btn btn-info">Book Flight Tickets</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
