@@ -1,0 +1,1 @@
+pip install flask flask-login flask-sqlalchemy flask-wtf email-validator gunicorn psycopg2-binary
