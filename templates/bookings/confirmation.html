@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card bg-dark mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0 text-center text-success">
+                        <i class="fas fa-check-circle me-2"></i>Booking Confirmed
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-ticket-alt fa-4x text-primary mb-3"></i>
+                        <h5>Thank you for booking with TravelEase!</h5>
+                        <p>Your booking has been confirmed. Please find your booking details below.</p>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3 bg-dark">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Booking Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-2">
+                                        <div class="col-6">
+                                            <p class="mb-0 text-muted">Booking ID</p>
+                                            <p class="fw-bold">{{ booking.id }}</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <p class="mb-0 text-muted">Booking Date</p>
+                                            <p class="fw-bold">{{ booking.booking_date.strftime('%B %d, %Y') }}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-2">
+                                        <div class="col-6">
+                                            <p class="mb-0 text-muted">Booking Type</p>
+                                            <p class="fw-bold">{{ booking.booking_type|capitalize }}</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <p class="mb-0 text-muted">Status</p>
+                                            <p class="fw-bold">
+                                                <span class="badge bg-success">{{ booking.status|capitalize }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-2">
+                                        <div class="col-6">
+                                            <p class="mb-0 text-muted">Travel Class</p>
+                                            <p class="fw-bold">{{ booking.travel_class|capitalize }}</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <p class="mb-0 text-muted">Total Amount</p>
+                                            <p class="fw-bold">${{ "%.2f"|format(booking.total_amount) }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card mb-3 bg-dark">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Trip Details</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        {% if booking.booking_type == 'train' %}
+                                        <i class="fas fa-train fa-2x text-success me-3"></i>
+                                        <div>
+                                            <h5 class="mb-0">{{ schedule.train.name }}</h5>
+                                            <p class="mb-0 text-muted">{{ schedule.train.number }}</p>
+                                        </div>
+                                        {% else %}
+                                        <i class="fas fa-plane fa-2x text-info me-3"></i>
+                                        <div>
+                                            <h5 class="mb-0">{{ schedule.flight.airline }}</h5>
+                                            <p class="mb-0 text-muted">{{ schedule.flight.flight_number }}</p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="row mb-2">
+                                        <div class="col-6">
+                                            <p class="mb-0 text-muted">From</p>
+                                            <p class="fw-bold">
+                                                {% if booking.booking_type == 'train' %}
+                                                {{ schedule.departure_station.name }} ({{ schedule.departure_station.code }})
+                                                {% else %}
+                                                {{ schedule.departure_airport.name }} ({{ schedule.departure_airport.code }})
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <div class="col-6">
+                                            <p class="mb-0 text-muted">To</p>
+                                            <p class="fw-bold">
+                                                {% if booking.booking_type == 'train' %}
+                                                {{ schedule.arrival_station.name }} ({{ schedule.arrival_station.code }})
+                                                {% else %}
+                                                {{ schedule.arrival_airport.name }} ({{ schedule.arrival_airport.code }})
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-2">
+                                        <div class="col-6">
+                                            <p class="mb-0 text-muted">Departure</p>
+                                            <p class="fw-bold">{{ schedule.departure_time.strftime('%B %d, %Y') }}</p>
+                                            <p class="fw-bold">{{ schedule.departure_time.strftime('%H:%M') }}</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <p class="mb-0 text-muted">Arrival</p>
+                                            <p class="fw-bold">{{ schedule.arrival_time.strftime('%B %d, %Y') }}</p>
+                                            <p class="fw-bold">{{ schedule.arrival_time.strftime('%H:%M') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4 bg-dark">
+                        <div class="card-header">
+                            <h5 class="mb-0">Passenger Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Age</th>
+                                            <th>Gender</th>
+                                            <th>Seat</th>
+                                            <th>Meal Preference</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for passenger in booking.passengers %}
+                                        <tr>
+                                            <td>{{ passenger.first_name }} {{ passenger.last_name }}</td>
+                                            <td>{{ passenger.age }}</td>
+                                            <td>{{ passenger.gender|capitalize }}</td>
+                                            <td>{{ passenger.seat_number }}</td>
+                                            <td>{{ passenger.meal_preference|capitalize if passenger.meal_preference != 'none' else 'No preference' }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{{ url_for('booking_history') }}" class="btn btn-primary">
+                            <i class="fas fa-history me-2"></i>View Booking History
+                        </a>
+                        <button class="btn btn-success" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Print Ticket
+                        </button>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            <i class="fas fa-times-circle me-2"></i>Cancel Booking
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Travel Tips -->
+            <div class="card bg-dark">
+                <div class="card-header">
+                    <h5 class="mb-0">Travel Tips</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-clock text-primary me-3"></i>
+                                <div>
+                                    <h6 class="mb-0">Arrive Early</h6>
+                                    <p class="mb-0 text-muted">
+                                        {% if booking.booking_type == 'train' %}
+                                        Arrive at least 30 minutes before departure
+                                        {% else %}
+                                        Arrive at least 2 hours before departure
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-id-card text-primary me-3"></i>
+                                <div>
+                                    <h6 class="mb-0">Identification</h6>
+                                    <p class="mb-0 text-muted">Carry a valid photo ID with you</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-suitcase-rolling text-primary me-3"></i>
+                                <div>
+                                    <h6 class="mb-0">Baggage</h6>
+                                    <p class="mb-0 text-muted">Check baggage allowance before travel</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelModalLabel">Confirm Cancellation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel this booking?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <form action="{{ url_for('cancel_booking', booking_id=booking.id) }}" method="post">
+                    <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

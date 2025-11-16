@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('search') }}">Search</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Select Seats</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Trip Summary -->
+        <div class="col-md-4">
+            <div class="card bg-dark mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Trip Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        {% if booking_type == 'train' %}
+                        <i class="fas fa-train fa-2x text-success me-3"></i>
+                        <div>
+                            <h5 class="mb-0">{{ schedule.train.name }}</h5>
+                            <p class="mb-0 text-muted">{{ schedule.train.number }}</p>
+                        </div>
+                        {% else %}
+                        <i class="fas fa-plane fa-2x text-info me-3"></i>
+                        <div>
+                            <h5 class="mb-0">{{ schedule.flight.airline }}</h5>
+                            <p class="mb-0 text-muted">{{ schedule.flight.flight_number }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row mb-3">
+                        <div class="col-5">
+                            <p class="mb-1 text-muted">From</p>
+                            <h6 class="mb-0">
+                                {% if booking_type == 'train' %}
+                                {{ schedule.departure_station.name }}
+                                {% else %}
+                                {{ schedule.departure_airport.name }}
+                                {% endif %}
+                            </h6>
+                            <p class="mb-0 text-muted">
+                                {% if booking_type == 'train' %}
+                                {{ schedule.departure_station.code }}
+                                {% else %}
+                                {{ schedule.departure_airport.code }}
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div class="col-2 text-center">
+                            <i class="fas fa-arrow-right text-muted mt-4"></i>
+                        </div>
+                        
+                        <div class="col-5">
+                            <p class="mb-1 text-muted">To</p>
+                            <h6 class="mb-0">
+                                {% if booking_type == 'train' %}
+                                {{ schedule.arrival_station.name }}
+                                {% else %}
+                                {{ schedule.arrival_airport.name }}
+                                {% endif %}
+                            </h6>
+                            <p class="mb-0 text-muted">
+                                {% if booking_type == 'train' %}
+                                {{ schedule.arrival_station.code }}
+                                {% else %}
+                                {{ schedule.arrival_airport.code }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <p class="mb-1 text-muted">Departure</p>
+                            <h6 class="mb-0">{{ schedule.departure_time.strftime('%H:%M') }}</h6>
+                            <p class="mb-0 text-muted">{{ schedule.departure_time.strftime('%b %d, %Y') }}</p>
+                        </div>
+                        
+                        <div class="col-6">
+                            <p class="mb-1 text-muted">Arrival</p>
+                            <h6 class="mb-0">{{ schedule.arrival_time.strftime('%H:%M') }}</h6>
+                            <p class="mb-0 text-muted">{{ schedule.arrival_time.strftime('%b %d, %Y') }}</p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <p class="mb-1 text-muted">Travel Class</p>
+                            <h6 class="mb-0">{{ travel_class|capitalize }}</h6>
+                        </div>
+                        
+                        <div class="col-6">
+                            <p class="mb-1 text-muted">Passengers</p>
+                            <h6 class="mb-0">{{ passengers }}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Price Summary -->
+            <div class="card bg-dark mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Price Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Base Fare (per passenger)</span>
+                        <span>${{ "%.2f"|format(price_per_ticket) }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Passengers</span>
+                        <span>× {{ passengers }}</span>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between mb-0">
+                        <span class="fw-bold">Total Amount</span>
+                        <span class="fw-bold">${{ "%.2f"|format(total_price) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Seat Selection and Passenger Information -->
+        <div class="col-md-8">
+            <div class="card bg-dark mb-4">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        {% for i in range(passengers) %}
+                        <li class="nav-item">
+                            <a class="nav-link passenger-tab {% if i == 0 %}active{% endif %}" 
+                               href="#" data-passenger-index="{{ i }}">
+                               Passenger {{ i + 1 }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('book') }}">
+                        {{ booking_form.hidden_tag() }}
+                        
+                        {% for i in range(passengers) %}
+                        <div class="passenger-form {% if i != 0 %}d-none{% endif %} {% if i == 0 %}active{% endif %}" data-passenger-index="{{ i }}">
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h5>Passenger {{ i + 1 }} Details</h5>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="passenger_{{ i }}-first_name" class="form-label">First Name</label>
+                                    {{ passenger_forms[i].first_name(class="form-control", id="passenger_" ~ i ~ "-first_name", placeholder="Enter first name") }}
+                                    {% for error in passenger_forms[i].first_name.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="passenger_{{ i }}-last_name" class="form-label">Last Name</label>
+                                    {{ passenger_forms[i].last_name(class="form-control", id="passenger_" ~ i ~ "-last_name", placeholder="Enter last name") }}
+                                    {% for error in passenger_forms[i].last_name.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="passenger_{{ i }}-age" class="form-label">Age</label>
+                                    {{ passenger_forms[i].age(class="form-control", id="passenger_" ~ i ~ "-age", min="0", max="120") }}
+                                    {% for error in passenger_forms[i].age.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="passenger_{{ i }}-gender" class="form-label">Gender</label>
+                                    {{ passenger_forms[i].gender(class="form-control", id="passenger_" ~ i ~ "-gender") }}
+                                    {% for error in passenger_forms[i].gender.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="passenger_{{ i }}-seat_number" class="form-label">Seat Number</label>
+                                    <div class="input-group">
+                                        {{ passenger_forms[i].seat_number(class="form-control", id="passenger_" ~ i ~ "-seat_number", readonly=true) }}
+                                        <span class="input-group-text">
+                                            Selected: <span id="selected-seat-{{ i }}">None</span>
+                                        </span>
+                                    </div>
+                                    {% for error in passenger_forms[i].seat_number.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="passenger_{{ i }}-meal_preference" class="form-label">Meal Preference</label>
+                                    {{ passenger_forms[i].meal_preference(class="form-control", id="passenger_" ~ i ~ "-meal_preference") }}
+                                    {% for error in passenger_forms[i].meal_preference.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <!-- Seat Selection -->
+                        <div class="row mb-4 mt-4">
+                            <div class="col-12">
+                                <h5>
+                                    Select Seats
+                                    <span class="badge bg-{{ 'success' if booking_type == 'train' else 'info' }}">
+                                        {{ travel_class|capitalize }} Class
+                                    </span>
+                                </h5>
+                                <p class="text-muted mb-3">Click on a seat to select it for the current passenger</p>
+                                
+                                <div class="card bg-dark-subtle p-3 mb-3">
+                                    <div class="d-flex justify-content-center mb-3">
+                                        <div class="d-flex align-items-center me-4">
+                                            <div class="seat available me-2" style="width: 25px; height: 25px;"></div>
+                                            <span>Available</span>
+                                        </div>
+                                        <div class="d-flex align-items-center me-4">
+                                            <div class="seat selected me-2" style="width: 25px; height: 25px;"></div>
+                                            <span>Selected</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <div class="seat booked me-2" style="width: 25px; height: 25px;"></div>
+                                            <span>Booked</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Seat Grid -->
+                                    <div class="seat-grid">
+                                        {% for row in range(1, (total_seats // 6) + 1) %}
+                                            {% for col in ['A', 'B', 'C', 'D', 'E', 'F'] %}
+                                                {% set seat_number = row ~ col %}
+                                                {% set is_booked = (loop.index0 % 5 == 0) %}
+                                                <div class="seat {{ travel_class }} {{ 'booked' if is_booked else 'available' }}" 
+                                                     data-seat-number="{{ seat_number }}">
+                                                    {{ seat_number }}
+                                                </div>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-ticket-alt me-2"></i>Confirm Booking
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

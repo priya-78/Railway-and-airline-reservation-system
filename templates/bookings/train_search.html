@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('search') }}">Search</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Train Results</li>
+                </ol>
+            </nav>
+            
+            <!-- Search Details Summary -->
+            <div class="card bg-dark mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-train me-2 text-success"></i>
+                                <span class="fw-bold">{{ source|capitalize }}</span> to 
+                                <span class="fw-bold">{{ destination|capitalize }}</span>
+                            </h5>
+                            <p class="text-muted mb-0">
+                                {{ departure_date.strftime('%A, %B %d, %Y') }} | 
+                                {{ travel_class|capitalize }} Class | 
+                                {{ passengers }} Passenger{% if passengers > 1 %}s{% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a href="{{ url_for('search') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-search me-2"></i>Modify Search
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search Results -->
+    <div class="row">
+        <div class="col-md-12">
+            {% if schedules %}
+                {% for schedule in schedules %}
+                <div class="card bg-dark mb-3 search-result-item travel-type-train">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <h5 class="mb-1">{{ schedule.train.name }}</h5>
+                                <p class="mb-0 text-muted">Train: {{ schedule.train.number }}</p>
+                            </div>
+                            
+                            <div class="col-md-5">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="text-center">
+                                        <h5 class="mb-0">{{ schedule.departure_time.strftime('%H:%M') }}</h5>
+                                        <p class="mb-0 text-muted">{{ schedule.departure_station.code }}</p>
+                                        <p class="mb-0 small">{{ schedule.departure_station.city }}</p>
+                                    </div>
+                                    
+                                    <div class="flex-grow-1 px-3 text-center">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <small class="text-muted">
+                                                {{ (schedule.arrival_time - schedule.departure_time).total_seconds() // 3600 }}h 
+                                                {{ ((schedule.arrival_time - schedule.departure_time).total_seconds() % 3600) // 60 }}m
+                                            </small>
+                                            <div class="progress w-100 my-2" style="height: 2px;">
+                                                <div class="progress-bar bg-success" role="progressbar" style="width: 100%"></div>
+                                            </div>
+                                            <i class="fas fa-train text-success"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-center">
+                                        <h5 class="mb-0">{{ schedule.arrival_time.strftime('%H:%M') }}</h5>
+                                        <p class="mb-0 text-muted">{{ schedule.arrival_station.code }}</p>
+                                        <p class="mb-0 small">{{ schedule.arrival_station.city }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-2 text-center">
+                                <h5 class="mb-1">
+                                    ${{ "%.2f"|format(schedule.economy_price if travel_class == 'economy' else
+                                                    schedule.business_price if travel_class == 'business' else
+                                                    schedule.first_price) }}
+                                </h5>
+                                <p class="mb-0 text-muted">per passenger</p>
+                                <p class="mb-0 small">{{ travel_class|capitalize }} Class</p>
+                            </div>
+                            
+                            <div class="col-md-2">
+                                <div class="d-grid">
+                                    {% set available_seats = schedule.available_seats_economy if travel_class == 'economy' else
+                                                         schedule.available_seats_business if travel_class == 'business' else
+                                                         schedule.available_seats_first %}
+                                    
+                                    {% if available_seats >= passengers %}
+                                    <a href="{{ url_for('select_seat', schedule_id=schedule.id, booking_type='train', travel_class=travel_class, passengers=passengers) }}" 
+                                       class="btn btn-success">
+                                        Select
+                                    </a>
+                                    <small class="text-center text-muted mt-1">
+                                        {{ available_seats }} seat{% if available_seats != 1 %}s{% endif %} available
+                                    </small>
+                                    {% else %}
+                                    <button class="btn btn-secondary" disabled>Sold Out</button>
+                                    <small class="text-center text-muted mt-1">
+                                        Only {{ available_seats }} seat{% if available_seats != 1 %}s{% endif %} left
+                                    </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="card bg-dark">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-train fa-4x text-muted mb-3"></i>
+                        <h4>No Trains Found</h4>
+                        <p class="text-muted">We couldn't find any trains matching your search criteria.</p>
+                        <a href="{{ url_for('search') }}" class="btn btn-primary mt-3">
+                            <i class="fas fa-search me-2"></i>Modify Search
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

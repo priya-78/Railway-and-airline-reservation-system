@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card bg-dark shadow-sm">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Search Tickets</h3>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('search') }}" method="post">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label">Travel Type</label>
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="booking_type" id="train-option" value="train" {{ 'checked' if form.booking_type.data == 'train' or not form.booking_type.data else '' }} autocomplete="off">
+                                    <label class="btn btn-outline-primary" for="train-option">
+                                        <i class="fas fa-train me-2"></i>Train
+                                    </label>
+                                    
+                                    <input type="radio" class="btn-check" name="booking_type" id="flight-option" value="flight" {{ 'checked' if form.booking_type.data == 'flight' else '' }} autocomplete="off">
+                                    <label class="btn btn-outline-primary" for="flight-option">
+                                        <i class="fas fa-plane me-2"></i>Flight
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-5">
+                                <div class="form-floating">
+                                    {{ form.source(class="form-control", id="source", placeholder="From") }}
+                                    <label for="source">From</label>
+                                    <div class="form-text">
+                                        Enter city, station code or name for trains | Enter city, airport code or name for flights
+                                    </div>
+                                    {% for error in form.source.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-2 d-flex align-items-center justify-content-center">
+                                <button type="button" id="swap-locations" class="btn btn-outline-secondary rounded-circle">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="col-md-5">
+                                <div class="form-floating">
+                                    {{ form.destination(class="form-control", id="destination", placeholder="To") }}
+                                    <label for="destination">To</label>
+                                    <div class="form-text">
+                                        Enter city, station code or name for trains | Enter city, airport code or name for flights
+                                    </div>
+                                    {% for error in form.destination.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <div class="form-floating">
+                                    {{ form.departure_date(class="form-control", id="departure_date", type="date") }}
+                                    <label for="departure_date">Departure Date</label>
+                                    {% for error in form.departure_date.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-floating">
+                                    {{ form.travel_class(class="form-control", id="travel_class") }}
+                                    <label for="travel_class">Travel Class</label>
+                                    {% for error in form.travel_class.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-floating">
+                                    {{ form.passengers(class="form-control", id="passengers", min="1", max="10") }}
+                                    <label for="passengers">Passengers</label>
+                                    {% for error in form.passengers.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-search me-2"></i>Search Tickets
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Travel Tips -->
+            <div class="card bg-dark mt-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Travel Tips</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-train text-success me-2"></i>Train Travel</h5>
+                            <ul>
+                                <li>Book tickets at least 3-7 days in advance for better availability</li>
+                                <li>Economy class offers budget-friendly travel options</li>
+                                <li>Business class provides extra comfort with reclining seats</li>
+                                <li>First class offers premium experience with meals included</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-plane text-info me-2"></i>Flight Travel</h5>
+                            <ul>
+                                <li>Book tickets at least 2-3 weeks in advance for better rates</li>
+                                <li>Economy class is ideal for budget travelers</li>
+                                <li>Business class offers priority boarding and extra legroom</li>
+                                <li>First class provides luxury experience with premium services</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
