@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Reports & Analytics</h1>
+    
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-dark h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Booking Summary</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush bg-dark">
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-dark">
+                            Total Bookings
+                            <span class="badge bg-primary rounded-pill">{{ total_bookings }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-dark">
+                            Train Bookings
+                            <span class="badge bg-success rounded-pill">{{ train_bookings }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-dark">
+                            Flight Bookings
+                            <span class="badge bg-info rounded-pill">{{ flight_bookings }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-dark h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Booking Status</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush bg-dark">
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-dark">
+                            Confirmed Bookings
+                            <span class="badge bg-success rounded-pill">{{ confirmed_bookings }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-dark">
+                            Cancelled Bookings
+                            <span class="badge bg-danger rounded-pill">{{ cancelled_bookings }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-dark h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Travel Classes</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush bg-dark">
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-dark">
+                            Economy Class
+                            <span class="badge bg-secondary rounded-pill">{{ economy_bookings }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-dark">
+                            Business Class
+                            <span class="badge bg-primary rounded-pill">{{ business_bookings }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-dark">
+                            First Class
+                            <span class="badge bg-warning text-dark rounded-pill">{{ first_class_bookings }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Visualization Section -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-dark h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Booking Types</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="bookingTypeChart" data-train-bookings="{{ train_bookings }}" data-flight-bookings="{{ flight_bookings }}"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card bg-dark h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Travel Classes</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="travelClassChart" 
+                            data-economy="{{ economy_bookings }}" 
+                            data-business="{{ business_bookings }}" 
+                            data-first="{{ first_class_bookings }}"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Overall Statistics -->
+    <div class="card bg-dark mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Overall Statistics</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>User Activity</h6>
+                    <p>Total Registered Users: <strong>{{ total_users }}</strong></p>
+                    <p>User-to-Booking Ratio: <strong>{{ (total_bookings / total_users)|round(2) if total_users > 0 else 0 }}</strong></p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Booking Metrics</h6>
+                    <p>Cancellation Rate: <strong>{{ ((cancelled_bookings / total_bookings) * 100)|round(2) if total_bookings > 0 else 0 }}%</strong></p>
+                    <p>Train vs Flight Ratio: <strong>{{ (train_bookings / flight_bookings)|round(2) if flight_bookings > 0 else 'N/A' }}</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Booking Type Chart
+    const bookingTypeChartEl = document.getElementById('bookingTypeChart');
+    if (bookingTypeChartEl) {
+        const trainBookings = parseInt(bookingTypeChartEl.dataset.trainBookings || 0);
+        const flightBookings = parseInt(bookingTypeChartEl.dataset.flightBookings || 0);
+        
+        new Chart(bookingTypeChartEl, {
+            type: 'pie',
+            data: {
+                labels: ['Train Bookings', 'Flight Bookings'],
+                datasets: [{
+                    data: [trainBookings, flightBookings],
+                    backgroundColor: ['#28a745', '#17a2b8'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    }
+    
+    // Travel Class Chart
+    const travelClassChartEl = document.getElementById('travelClassChart');
+    if (travelClassChartEl) {
+        const economy = parseInt(travelClassChartEl.dataset.economy || 0);
+        const business = parseInt(travelClassChartEl.dataset.business || 0);
+        const first = parseInt(travelClassChartEl.dataset.first || 0);
+        
+        new Chart(travelClassChartEl, {
+            type: 'pie',
+            data: {
+                labels: ['Economy', 'Business', 'First Class'],
+                datasets: [{
+                    data: [economy, business, first],
+                    backgroundColor: ['#6c757d', '#007bff', '#ffc107'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

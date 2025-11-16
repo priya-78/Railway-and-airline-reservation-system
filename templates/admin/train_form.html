@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('manage_trains') }}">Trains</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        {% if train %}Edit Train{% else %}Add Train{% endif %}
+                    </li>
+                </ol>
+            </nav>
+            <h1 class="mb-3">{% if train %}Edit Train{% else %}Add New Train{% endif %}</h1>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card bg-dark">
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.name.label(class="form-label") }}
+                                    {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                                    {% for error in form.name.errors %}
+                                        <div class="invalid-feedback">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.number.label(class="form-label") }}
+                                    {{ form.number(class="form-control" + (" is-invalid" if form.number.errors else "")) }}
+                                    {% for error in form.number.errors %}
+                                        <div class="invalid-feedback">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.total_seats_economy.label(class="form-label") }}
+                                    {{ form.total_seats_economy(class="form-control" + (" is-invalid" if form.total_seats_economy.errors else ""), min="1") }}
+                                    {% for error in form.total_seats_economy.errors %}
+                                        <div class="invalid-feedback">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.total_seats_business.label(class="form-label") }}
+                                    {{ form.total_seats_business(class="form-control" + (" is-invalid" if form.total_seats_business.errors else ""), min="0") }}
+                                    {% for error in form.total_seats_business.errors %}
+                                        <div class="invalid-feedback">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.total_seats_first.label(class="form-label") }}
+                                    {{ form.total_seats_first(class="form-control" + (" is-invalid" if form.total_seats_first.errors else ""), min="0") }}
+                                    {% for error in form.total_seats_first.errors %}
+                                        <div class="invalid-feedback">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('manage_trains') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Trains
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Train
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-dark">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Train Details</h3>
+                </div>
+                <div class="card-body">
+                    <p>Fill in the details for the train. Make sure to provide accurate information for:</p>
+                    <ul>
+                        <li><strong>Train Name</strong>: The official name of the train (e.g., "Express 2000")</li>
+                        <li><strong>Train Number</strong>: A unique identifier for the train (e.g., "TR-1234")</li>
+                        <li><strong>Seats</strong>: The total number of seats available in each class</li>
+                    </ul>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Train numbers must be unique across the system.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

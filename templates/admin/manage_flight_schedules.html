@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Manage Flight Schedules{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Manage Flight Schedules</h2>
+    <a href="{{ url_for('add_flight_schedule') }}" class="btn btn-primary mb-3">+ Add New Schedule</a>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Flight</th>
+                <th>Route</th>
+                <th>Departure</th>
+                <th>Arrival</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for schedule in schedules %}
+            <tr>
+                <td>{{ schedule.id }}</td>
+                <td>
+                    {% if schedule.flight %}
+                        {{ schedule.flight.airline }} ({{ schedule.flight.flight_number }})
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    {% if schedule.departure_airport and schedule.arrival_airport %}
+                        {{ schedule.departure_airport.city }} → {{ schedule.arrival_airport.city }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>{{ schedule.departure_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ schedule.arrival_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    <a href="{{ url_for('edit_flight_schedule', schedule_id=schedule.id) }}"
+                       class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-edit"></i>
+                    </a>
+
+                    <button type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteFlightModal{{ schedule.id }}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+
+                    <!-- Delete Confirmation Modal -->
+                    <div class="modal fade" id="deleteFlightModal{{ schedule.id }}" tabindex="-1"
+                         aria-labelledby="deleteFlightModalLabel{{ schedule.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteFlightModalLabel{{ schedule.id }}">Confirm Delete</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete schedule for
+                                    <strong>
+                                        {% if schedule.flight %}
+                                            {{ schedule.flight.airline }} ({{ schedule.flight.flight_number }})
+                                        {% else %}
+                                            this flight
+                                        {% endif %}
+                                    </strong>?
+                                    <p class="text-danger mt-2">This action cannot be undone.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <a href="{{ url_for('delete_flight_schedule', schedule_id=schedule.id) }}"
+                                       class="btn btn-danger">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Modal -->
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault(); // Prevent flicker by stopping default behavior
+            });
+        });
+    });
+</script>
+{% endblock %}

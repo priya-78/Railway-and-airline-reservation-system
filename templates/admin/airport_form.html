@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('manage_airports') }}">Airports</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        {% if airport %}Edit Airport{% else %}Add Airport{% endif %}
+                    </li>
+                </ol>
+            </nav>
+            <h1 class="mb-3">{% if airport %}Edit Airport{% else %}Add New Airport{% endif %}</h1>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card bg-dark">
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            <div class="form-group">
+                                {{ form.name.label(class="form-label") }}
+                                {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                                {% for error in form.name.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-group">
+                                {{ form.code.label(class="form-label") }}
+                                {{ form.code(class="form-control" + (" is-invalid" if form.code.errors else ""), maxlength="3") }}
+                                {% for error in form.code.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">Airport code must be a unique 3-letter IATA code (e.g., JFK, LAX)</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-group">
+                                {{ form.city.label(class="form-label") }}
+                                {{ form.city(class="form-control" + (" is-invalid" if form.city.errors else "")) }}
+                                {% for error in form.city.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-group">
+                                {{ form.state.label(class="form-label") }}
+                                {{ form.state(class="form-control" + (" is-invalid" if form.state.errors else "")) }}
+                                {% for error in form.state.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-group">
+                                {{ form.country.label(class="form-label") }}
+                                {{ form.country(class="form-control" + (" is-invalid" if form.country.errors else "")) }}
+                                {% for error in form.country.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('manage_airports') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Airports
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Airport
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-dark">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Airport Information</h3>
+                </div>
+                <div class="card-body">
+                    <p>Fill in the details for the airport:</p>
+                    <ul>
+                        <li><strong>Name</strong>: The official name of the airport (e.g., "John F. Kennedy International Airport")</li>
+                        <li><strong>Code</strong>: A unique 3-letter IATA code (e.g., "JFK", "LAX")</li>
+                        <li><strong>City</strong>: The city where the airport is located</li>
+                        <li><strong>State</strong>: The state/province (optional for some countries)</li>
+                        <li><strong>Country</strong>: The country where the airport is located</li>
+                    </ul>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Airport codes must be unique IATA codes consisting of exactly 3 letters.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

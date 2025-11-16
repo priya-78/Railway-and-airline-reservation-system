@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('manage_stations') }}">Stations</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        {% if station %}Edit Station{% else %}Add Station{% endif %}
+                    </li>
+                </ol>
+            </nav>
+            <h1 class="mb-3">{% if station %}Edit Station{% else %}Add New Station{% endif %}</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card bg-dark">
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            <div class="form-group">
+                                {{ form.name.label(class="form-label") }}
+                                {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                                {% for error in form.name.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-group">
+                                {{ form.code.label(class="form-label") }}
+                                {{ form.code(class="form-control" + (" is-invalid" if form.code.errors else ""), maxlength="10") }}
+                                {% for error in form.code.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">Station code must be unique (2–10 letters, e.g., NDLS, CSTM)</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-group">
+                                {{ form.city.label(class="form-label") }}
+                                {{ form.city(class="form-control" + (" is-invalid" if form.city.errors else "")) }}
+                                {% for error in form.city.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-group">
+                                {{ form.state.label(class="form-label") }}
+                                {{ form.state(class="form-control" + (" is-invalid" if form.state.errors else "")) }}
+                                {% for error in form.state.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-group">
+                                {{ form.country.label(class="form-label") }}
+                                {{ form.country(class="form-control" + (" is-invalid" if form.country.errors else "")) }}
+                                {% for error in form.country.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('manage_stations') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Stations
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Station
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-dark">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Station Info</h3>
+                </div>
+                <div class="card-body">
+                    <p>Enter the details of the station:</p>
+                    <ul>
+                        <li><strong>Name</strong>: Full station name (e.g., "New Delhi Railway Station")</li>
+                        <li><strong>Code</strong>: Unique short code (e.g., NDLS, HWH)</li>
+                        <li><strong>City</strong>: The city where this station is located</li>
+                        <li><strong>State</strong>: Optional, but useful for clarity</li>
+                        <li><strong>Country</strong>: Required for all stations</li>
+                    </ul>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Station codes must be unique and between 2 and 10 characters.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

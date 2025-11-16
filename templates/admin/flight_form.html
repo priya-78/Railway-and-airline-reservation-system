@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('manage_flights') }}">Flights</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        {% if flight %}Edit Flight{% else %}Add Flight{% endif %}
+                    </li>
+                </ol>
+            </nav>
+            <h1 class="mb-3">{% if flight %}Edit Flight{% else %}Add New Flight{% endif %}</h1>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card bg-dark">
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.airline.label(class="form-label") }}
+                                    {{ form.airline(class="form-control" + (" is-invalid" if form.airline.errors else "")) }}
+                                    {% for error in form.airline.errors %}
+                                        <div class="invalid-feedback">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.flight_number.label(class="form-label") }}
+                                    {{ form.flight_number(class="form-control" + (" is-invalid" if form.flight_number.errors else "")) }}
+                                    {% for error in form.flight_number.errors %}
+                                        <div class="invalid-feedback">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-group">
+                                {{ form.aircraft_type.label(class="form-label") }}
+                                {{ form.aircraft_type(class="form-control" + (" is-invalid" if form.aircraft_type.errors else "")) }}
+                                {% for error in form.aircraft_type.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.total_seats_economy.label(class="form-label") }}
+                                    {{ form.total_seats_economy(class="form-control" + (" is-invalid" if form.total_seats_economy.errors else ""), min="1") }}
+                                    {% for error in form.total_seats_economy.errors %}
+                                        <div class="invalid-feedback">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.total_seats_business.label(class="form-label") }}
+                                    {{ form.total_seats_business(class="form-control" + (" is-invalid" if form.total_seats_business.errors else ""), min="0") }}
+                                    {% for error in form.total_seats_business.errors %}
+                                        <div class="invalid-feedback">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.total_seats_first.label(class="form-label") }}
+                                    {{ form.total_seats_first(class="form-control" + (" is-invalid" if form.total_seats_first.errors else ""), min="0") }}
+                                    {% for error in form.total_seats_first.errors %}
+                                        <div class="invalid-feedback">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('manage_flights') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Flights
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Flight
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-dark">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Flight Details</h3>
+                </div>
+                <div class="card-body">
+                    <p>Fill in the details for the flight. Make sure to provide accurate information for:</p>
+                    <ul>
+                        <li><strong>Airline</strong>: The name of the airline (e.g., "Air Express")</li>
+                        <li><strong>Flight Number</strong>: A unique identifier for the flight (e.g., "AE123")</li>
+                        <li><strong>Aircraft Type</strong>: The model of the aircraft (e.g., "Boeing 737")</li>
+                        <li><strong>Seats</strong>: The total number of seats available in each class</li>
+                    </ul>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Flight numbers must be unique across the system.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
